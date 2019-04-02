@@ -55,7 +55,7 @@ class BoncsBaseSpider(scrapy.Spider):
             names = jisilu_nav.css('::text').extract()      
             #print('names:[[{}]]'.format(names))
             if not type_Q:                 
-                #如果没有type_Q，在names[1]和names[2]中
+                #如果没有type_Q，在names[0]和names[1]中
                 #星源转债 - 123009			 (正股：<a href="/data/stock/300568">星源材质 - 300568
                 #names[0]: 星源转债 - 123009			 (正股：
                 #names[1]: 星源材质 - 300568                
@@ -67,14 +67,13 @@ class BoncsBaseSpider(scrapy.Spider):
                 gp_name = name_code.group(1)      #德尔股份   
                 gp_code = name_code.group(2)      #300473
             else:
-                #如果type_Q，在names[0], names[2], names[3]中
-                #老的['可转债', ' >> 15天集EB',  'Q', ' - 132002\t\t\t (正股：', '天士力 - 600535',  ')\n\t\t\t ',  '【已退市】', '\t\t\t ']
+                #如果type_Q，在names[0], names[2], names[3]中                
                 #新的: 17桐昆EB<sup style="color:#fda429;">Q</sup> - 132010			 (正股：<a href="/data/stock/601233">桐昆股份 - 601233
                 zz_name = names[0]        # 17桐昆EB
                 zz_code = zz_code_q_pattern.match(names[2]).group(1)        #" - (\d{6})"
                 
                 name_code = gp_name_code_pattern.match(names[3])        #"(.*) - (\d{6})"
-                gp_name = name_code.group(1)      #德尔股份
+                gp_name = name_code.group(1)      #桐昆股份
                 gp_code = name_code.group(2)      #300473
   
             #1. 基本数据
