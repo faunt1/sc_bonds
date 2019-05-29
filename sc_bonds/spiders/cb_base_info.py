@@ -135,9 +135,11 @@ class BoncsBaseSpider(scrapy.Spider):
             ret_pre_tax = [float(i) for i in ret_pre_tax]
             
             #不满6个，拿第一个不满6个
-            if len(ret_pre_tax) < 6:
+            if len(ret_pre_tax) == 0:
+                ret_pre_tax = [0 for i in range(6)]
+            elif len(ret_pre_tax) < 6:
                 ret_pre_tax = [ret_pre_tax[0] for i in range(6-len(ret_pre_tax))] + ret_pre_tax
-            
+             
             redeem_price = float(sub_values.get('redeem_price'))
             ret_pre_tax[-1] = redeem_price - 100
             ret_after_tax = [i*100*0.8/100 for i in ret_pre_tax]
