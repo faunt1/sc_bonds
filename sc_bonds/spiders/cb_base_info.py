@@ -10,7 +10,8 @@ zz_code_q_pattern = re.compile(" - (\d{6})")
 
 reb = re.compile('\s+') 
 
-code_range_str = '110000-110099|113000-113099|113500-113599|123000-123099|127000-127099|128000-128099|132000-132099'
+code_range_str = '110000-110099|111000-111099|113000-113099|113500-113699|118000-118099|120000-120099|123000-123199|127000-127099|128000-128199|132000-132099'
+
 #code_range_str = '128013'
 base_url = 'https://www.jisilu.cn/data/convert_bond_detail/'
 
@@ -50,32 +51,46 @@ class BoncsBaseSpider(scrapy.Spider):
             if name.find('已退市') != -1:
                 type_TS = True
             
-            #print('name:', name)
-            #print('type_Q:', type_Q, ', type_TS:', type_TS)
+            # print('name:', name)
+            # print('type_Q:', type_Q, ', type_TS:', type_TS)
+            
             names = jisilu_nav.css('::text').extract()      
-            #print('names:[[{}]]'.format(names))
+            # print(f'names:{names}, 长度{len(names)}')
             if not type_Q:                 
                 #如果没有type_Q，在names[0]和names[1]中
                 #星源转债 - 123009			 (正股：<a href="/data/stock/300568">星源材质 - 300568
                 #names[0]: 星源转债 - 123009			 (正股：
-                #names[1]: 星源材质 - 300568                
+                #names[1]: 星源材质 - 300568             
+
                 name_code = gp_name_code_pattern.match(names[0])        #"(.*) - (\d{6})"
                 zz_name = name_code.group(1)      #德尔转债
-                zz_code = name_code.group(2)      #123011
+                zz_code = name_code.group(2)      #123011 
+                   
+                if 'R' not in names:
+                    name_code = gp_name_code_pattern.match(names[1])        #"(.*) - (\d{6})"
+                    gp_name = name_code.group(1)      #德尔股份   
+                    gp_code = name_code.group(2)      #300473
+                else:                     
+                    gp_name = names[1]
+                    gp_code = names[3][-6:]
+				
                 
-                name_code = gp_name_code_pattern.match(names[1])        #"(.*) - (\d{6})"
-                gp_name = name_code.group(1)      #德尔股份   
-                gp_code = name_code.group(2)      #300473
             else:
+                # print(f'names:{names}, 长度{len(names)}')
                 #如果type_Q，在names[0], names[2], names[3]中                
                 #新的: 17桐昆EB<sup style="color:#fda429;">Q</sup> - 132010			 (正股：<a href="/data/stock/601233">桐昆股份 - 601233
                 zz_name = names[0]        # 17桐昆EB
                 zz_code = zz_code_q_pattern.match(names[2]).group(1)        #" - (\d{6})"
                 
-                name_code = gp_name_code_pattern.match(names[3])        #"(.*) - (\d{6})"
-                gp_name = name_code.group(1)      #桐昆股份
-                gp_code = name_code.group(2)      #300473
+                if 'R' not in names:
+                    name_code = gp_name_code_pattern.match(names[3])        #"(.*) - (\d{6})"
+                    gp_name = name_code.group(1)      #桐昆股份
+                    gp_code = name_code.group(2)      #300473
+                else:
+                    gp_name = names[3]
+                    gp_code = names[5][-6:]
   
+            print(f'取出的值:{zz_name}, {zz_code}, {gp_name}, {gp_code}, Q: {type_Q}, 退市: {type_TS}')
             #1. 基本数据
             main_values ={
                 'zz_code':  zz_code,           
@@ -146,7 +161,7 @@ class BoncsBaseSpider(scrapy.Spider):
             main_values.update({'ret_pre_tax': str(ret_pre_tax)[1:-1]})
             main_values.update({'ret_after_tax': str(ret_after_tax)[1:-1]})
             
-            #print(main_values)
+            # print(main_values)
             
             yield main_values
             
