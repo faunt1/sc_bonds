@@ -10,6 +10,7 @@
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 BOT_NAME = 'sc_bonds'
+REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
 
 SPIDER_MODULES = ['sc_bonds.spiders']
 NEWSPIDER_MODULE = 'sc_bonds.spiders'
